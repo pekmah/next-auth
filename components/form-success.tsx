@@ -1,5 +1,5 @@
 import React from 'react';
-import {ExclamationTriangleIcon} from "@radix-ui/react-icons";
+import {IoCheckmarkDoneCircleOutline} from "react-icons/io5";
 
 interface FormSuccessProps {
     message?: string,
@@ -13,7 +13,7 @@ const FormSuccess = ({message}: FormSuccessProps) => {
         <div
             className={'bg-emerald-500/15 p-3 rounded-md flex items-center gap-x-2 text-emerald-500 text-sm'}
         >
-            <ExclamationTriangleIcon className={'h-4 w-4'}/>
+            <IoCheckmarkDoneCircleOutline size={25}/>
 
             <p>{message}</p>
 

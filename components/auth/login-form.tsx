@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import React from 'react';
+import React, {useCallback} from 'react';
 import CardWrapper from "@/components/auth/card-wrapper";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
@@ -9,10 +9,15 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import FormError from "@/components/form-error";
+import {loginAction} from "@/components/actions/login";
+import {useAction} from "next-safe-action/hooks";
 import FormSuccess from "@/components/form-success";
+import FormError from "@/components/form-error";
 
 const LoginForm = () => {
+
+    const {isExecuting, execute, result: {data: response}} = useAction(loginAction);
+
     const form = useForm<z.infer<typeof LoginSchema>>({
         resolver: zodResolver(LoginSchema),
         defaultValues: {
@@ -21,9 +26,13 @@ const LoginForm = () => {
         }
     })
 
-    const handleSubmit = (values: z.infer<typeof LoginSchema>) => {
-        console.log(values)
-    }
+    const renderResponse = useCallback(() => {
+        if (response?.success) {
+            return <FormSuccess message={response.success}/>
+        } else if (response?.error) {
+            return <FormError message={response.error}/>
+        }
+    }, [response]);
 
     return (
         <CardWrapper
@@ -34,7 +43,7 @@ const LoginForm = () => {
         >
             <Form {...form}>
                 <form
-                    onSubmit={form.handleSubmit(handleSubmit)}
+                    onSubmit={form.handleSubmit(execute)}
                     className={'space-y-6'}
                 >
                     <div
@@ -48,6 +57,7 @@ const LoginForm = () => {
                                     <FormLabel>Email</FormLabel>
                                     <Input
                                         {...field}
+                                        disabled={isExecuting}
                                         type={'email'}
                                         placeholder={'email@example.com'}
                                     />
@@ -62,6 +72,7 @@ const LoginForm = () => {
                                 <FormItem>
                                     <FormLabel>Password</FormLabel>
                                     <Input
+                                        disabled={isExecuting}
                                         {...field}
                                         type={'password'}
                                         placeholder={'*******'}
@@ -71,13 +82,13 @@ const LoginForm = () => {
                             )}/>
                     </div>
 
-                    <FormError message={"Something went wrong"}/>
-                    <FormSuccess message={"Email Sent"}/>
+                    {renderResponse()}
 
                     {/*  Submit button  */}
                     <Button
                         type={'submit'}
                         className={'w-full'}
+                        disabled={isExecuting}
                     >
                         Login
                     </Button>
