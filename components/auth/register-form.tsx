@@ -4,29 +4,30 @@ import React, {useCallback} from 'react';
 import CardWrapper from "@/components/auth/card-wrapper";
 import {useForm} from "react-hook-form";
 import {z} from "zod";
-import {LoginSchema} from "@/app/schemas";
+import {RegisterSchema} from "@/app/schemas";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {Form, FormField, FormItem, FormLabel, FormMessage} from "@/components/ui/form";
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {loginAction} from "@/lib/actions/login";
 import {useAction} from "next-safe-action/hooks";
 import FormSuccess from "@/components/form-success";
 import FormError from "@/components/form-error";
+import {registerAction} from "@/lib/actions/register";
 
-const LoginForm = () => {
+const RegisterForm = () => {
 
-    const {isExecuting, execute, result: {data: response}} = useAction(loginAction);
+    const {isExecuting, execute, result: {data: response}} = useAction(registerAction);
 
-    const form = useForm<z.infer<typeof LoginSchema>>({
-        resolver: zodResolver(LoginSchema),
+    const form = useForm<z.infer<typeof RegisterSchema>>({
+        resolver: zodResolver(RegisterSchema),
         defaultValues: {
             email: "",
-            password: ""
+            password: "",
+            name: ""
         }
     })
 
-    const renderResponse = useCallback(() => {
+    const renderRegistrationResponse = useCallback(() => {
         if (response?.success) {
             return <FormSuccess message={response.success}/>
         } else if (response?.error) {
@@ -36,9 +37,9 @@ const LoginForm = () => {
 
     return (
         <CardWrapper
-            headerLabel={'Welcome Back'}
-            backButtonLabel={'Don\'t have an account?'}
-            backButtonHref={'/auth/register'}
+            headerLabel={'Create an account'}
+            backButtonLabel={'Already have an account?'}
+            backButtonHref={'/auth/login'}
             showSocial={true}
         >
             <Form {...form}>
@@ -49,6 +50,22 @@ const LoginForm = () => {
                     <div
                         className={'space-y-4'}
                     >
+                        <FormField
+                            control={form.control}
+                            name={'name'}
+                            render={({field}) => (
+                                <FormItem>
+                                    <FormLabel>Full name</FormLabel>
+                                    <Input
+                                        {...field}
+                                        disabled={isExecuting}
+                                        type={'text'}
+                                        placeholder={'Your Name'}
+                                    />
+                                    <FormMessage/>
+                                </FormItem>
+                            )}/>
+
                         <FormField
                             control={form.control}
                             name={'email'}
@@ -82,7 +99,7 @@ const LoginForm = () => {
                             )}/>
                     </div>
 
-                    {renderResponse()}
+                    {renderRegistrationResponse()}
 
                     {/*  Submit button  */}
                     <Button
@@ -90,7 +107,7 @@ const LoginForm = () => {
                         className={'w-full'}
                         disabled={isExecuting}
                     >
-                        Login
+                        Create Account
                     </Button>
                 </form>
 
@@ -99,4 +116,4 @@ const LoginForm = () => {
     );
 };
 
-export default LoginForm;
+export default RegisterForm;

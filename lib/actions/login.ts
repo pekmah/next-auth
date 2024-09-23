@@ -1,7 +1,7 @@
 "use server";
 
 import {LoginSchema} from "@/app/schemas";
-import {actionClient} from "@/lib/safe-action";
+import {actionClient} from "@/lib/actions/safe-action";
 
 
 export const loginAction = actionClient.schema(LoginSchema).action(async ({parsedInput}) => {
