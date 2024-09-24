@@ -13,8 +13,13 @@ import {loginAction} from "@/lib/actions/login";
 import {useAction} from "next-safe-action/hooks";
 import FormSuccess from "@/components/form-success";
 import FormError from "@/components/form-error";
+import {useSearchParams} from "next/navigation";
 
 const LoginForm = () => {
+    const searchParams = useSearchParams();
+    const urlError = searchParams.get('error') === "OAuthAccountNotLinked"
+        ? "Email already in use with different provider"
+        : " ";
 
     const {isExecuting, execute, result: {data: response}} = useAction(loginAction);
 
@@ -29,10 +34,10 @@ const LoginForm = () => {
     const renderResponse = useCallback(() => {
         if (response?.success) {
             return <FormSuccess message={response.success}/>
-        } else if (response?.error) {
-            return <FormError message={response.error}/>
+        } else if (response?.error || urlError) {
+            return <FormError message={response?.error || urlError}/>
         }
-    }, [response]);
+    }, [response, urlError]);
 
     return (
         <CardWrapper
