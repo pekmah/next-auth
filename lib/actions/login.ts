@@ -26,10 +26,10 @@ export const loginAction = actionClient.schema(LoginSchema).action(async ({parse
                 case "CredentialsSignin":
                     return {error: "Invalid Credentials"}
                 default:
-                    return {error: "An Error Occurred"}
+                    return {error: "An error occurred"}
             }
         }
-        
+
         throw e
     }
 
