@@ -6,6 +6,9 @@ import {signIn} from "@/auth";
 import {LoginSchema} from "@/app/schemas";
 import {actionClient} from "@/lib/actions/safe-action";
 import {DEFAULT_LOGIN_REDIRECT} from "@/routes";
+import {getUserByEmail} from "@/data/user";
+import {generateVerificationToken} from "@/lib/utils/tokens";
+import {sendVerificationEmail} from "@/lib/utils/mail";
 
 
 export const loginAction = actionClient.schema(LoginSchema).action(async ({parsedInput}) => {
@@ -17,6 +20,20 @@ export const loginAction = actionClient.schema(LoginSchema).action(async ({parse
     }
 
     const {email, password} = validatedFields.data;
+
+    const user = await getUserByEmail(email);
+
+    if (!user || !user.email || !user.password) {
+        return {error: "Account not found"}
+    }
+
+    if (!user.emailVerified) {
+        const verificationToken = await generateVerificationToken(email);
+
+        await sendVerificationEmail(verificationToken.email, verificationToken.token);
+
+        return {success: "Confirmation email sent."}
+    }
 
     try {
         await signIn("credentials", {email, password, redirectTo: DEFAULT_LOGIN_REDIRECT})

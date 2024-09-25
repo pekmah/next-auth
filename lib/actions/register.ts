@@ -7,6 +7,8 @@ import {actionClient} from "@/lib/actions/safe-action";
 import {db} from "@/lib/db";
 import {revalidatePath} from "next/cache";
 import {getUserByEmail} from "@/data/user";
+import {generateVerificationToken} from "@/lib/utils/tokens";
+import {sendVerificationEmail} from "@/lib/utils/mail";
 
 
 export const registerAction = actionClient.schema(RegisterSchema).action(async ({parsedInput}) => {
@@ -35,10 +37,12 @@ export const registerAction = actionClient.schema(RegisterSchema).action(async (
         }
     })
 
-    // TODO: Send verification code to email
+    const verificationToken = await generateVerificationToken(email);
+
+    await sendVerificationEmail(verificationToken.email, verificationToken.token)
 
     // refresh screen
     revalidatePath("/auth/register")
 
-    return {success: "User Created"}
+    return {success: "Confirmation email sent."}
 });
